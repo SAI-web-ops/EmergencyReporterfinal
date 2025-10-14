@@ -1,0 +1,187 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dispatcher Dashboard</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+cUY8qtlGSZ8+0XY=" crossorigin=""></script>
+    <style>
+      body { font-family: system-ui, Arial, sans-serif; margin: 0; padding: 16px; background: #0b1220; color: #e6e9ef; }
+      h1 { margin: 0 0 12px; }
+      .bar { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+      .card { background:#111827; border:1px solid #1f2937; border-radius:12px; padding:16px; margin-bottom:12px; }
+      .pill { padding:4px 8px; border-radius:999px; font-size:12px; border:1px solid #374151; }
+      .row { display:flex; gap:12px; flex-wrap:wrap; }
+      .muted { color:#9ca3af; }
+      .ok { color:#10b981; }
+      .warn { color:#f59e0b; }
+      .bad { color:#ef4444; }
+      code { background:#0b1020; padding:2px 6px; border-radius:6px; border:1px solid #111827; }
+    </style>
+  </head>
+  <body>
+    <div class="bar">
+      <h1>Dispatcher Dashboard</h1>
+      <span id="status" class="pill muted">connecting…</span>
+    </div>
+    <div class="card" style="margin-bottom:16px;">
+      <div style="display:flex; gap:8px; align-items:center;">
+        <input id="token" type="password" placeholder="Paste Bearer token" style="flex:1; padding:8px; border-radius:8px; border:1px solid #374151; background:#0b1020; color:#e6e9ef;" />
+        <button id="connect" style="padding:8px 12px; border-radius:8px; border:1px solid #374151; background:#0b1020; color:#e6e9ef;">Connect</button>
+      </div>
+      <div class="muted" style="margin-top:8px;">Requires dispatcher role</div>
+    </div>
+
+    <div id="map" class="card" style="height:300px; margin-bottom:16px;"></div>
+    <div id="responders" class="card" style="margin-bottom:16px;"></div>
+    <div id="incidents"></div>
+
+    <script>
+      const statusEl = document.getElementById('status');
+      const listEl = document.getElementById('incidents');
+      const items = new Map();
+      const respEl = document.getElementById('responders');
+      let map, incidentMarkers = new Map(), responderMarkers = new Map();
+
+      function renderIncident(i) {
+        // markers
+        if (map && typeof i.latitude === 'number' && typeof i.longitude === 'number') {
+          let m = incidentMarkers.get(i.id);
+          const latlng = [i.latitude, i.longitude];
+          const popup = `${i.title}<br/>${i.address}<br/><span class="pill">${i.status}</span>`;
+          if (!m) {
+            m = L.marker(latlng, { title: i.title }).addTo(map).bindPopup(popup);
+            incidentMarkers.set(i.id, m);
+          } else {
+            m.setLatLng(latlng).bindPopup(popup);
+          }
+        }
+        const id = i.id;
+        let el = items.get(id);
+        const statusColor = i.status === 'resolved' ? 'ok' : (i.status === 'inProgress' ? 'warn' : 'bad');
+        const html = `
+          <div class="row" style="justify-content:space-between; align-items:center;">
+            <div>
+              <div style="font-weight:700; font-size:16px;">${i.title} <span class="pill">${i.type}</span></div>
+              <div class="muted">${i.address} • ${new Date(i.timestamp).toLocaleString()}</div>
+            </div>
+            <div class="pill ${statusColor}">${i.status}</div>
+          </div>
+          <div class="muted" style="margin-top:8px;">${i.description}</div>
+          <div class="muted" style="margin-top:8px;">Media: ${i.mediaUrls?.length || 0}</div>
+        `;
+        if (!el) {
+          el = document.createElement('div');
+          el.className = 'card';
+          el.id = `inc-${id}`;
+          el.innerHTML = html;
+          listEl.appendChild(el);
+          items.set(id, el);
+        } else {
+          const assignCtl = `<div style="margin-top:8px;">Assign responder: <input id="asg-${id}" placeholder="Responder ID" style="padding:6px; border-radius:8px; border:1px solid #374151; background:#0b1020; color:#e6e9ef; width:200px;"/> <button data-id="${id}" class="assign">Assign</button></div>`;
+          el.innerHTML = html + assignCtl;
+        }
+      }
+
+      function renderResponders(list) {
+        const html = [`<div style="font-weight:700; margin-bottom:8px;">Responders</div>`]
+          .concat((list || []).map(r => `<div class="row"><div>${r.name} <span class="pill">${r.id}</span></div><div class="muted">${r.available ? 'available' : 'busy'}</div></div>`)).join('');
+        respEl.innerHTML = html;
+        if (!map) return;
+        // simple markers for responders
+        const keep = new Set();
+        (list || []).forEach(r => {
+          keep.add(r.id);
+          if (typeof r.latitude !== 'number' || typeof r.longitude !== 'number') return;
+          const latlng = [r.latitude, r.longitude];
+          let m = responderMarkers.get(r.id);
+          const icon = L.divIcon({ className: 'resp', html: `<div style="background:#2563eb;color:white;padding:4px 6px;border-radius:8px;border:1px solid #1f2937;">${r.name}</div>` });
+          if (!m) {
+            m = L.marker(latlng, { icon }).addTo(map).bindPopup(`${r.name} (${r.id})`);
+            responderMarkers.set(r.id, m);
+          } else {
+            m.setLatLng(latlng).setIcon(icon);
+          }
+        });
+        // remove stale
+        for (const [id, m] of responderMarkers.entries()) {
+          if (!keep.has(id)) { map.removeLayer(m); responderMarkers.delete(id); }
+        }
+      }
+
+      function applySnapshot(snapshot) {
+        listEl.innerHTML = '';
+        items.clear();
+        (snapshot.incidents || []).forEach(renderIncident);
+      }
+
+      function connect() {
+        const tk = document.getElementById('token').value.trim();
+        const es = new EventSource('/incidents/stream' + (tk ? ('?token=' + encodeURIComponent(tk)) : ''));
+        statusEl.textContent = 'connecting…';
+        statusEl.className = 'pill muted';
+        es.onopen = () => { statusEl.textContent = 'live'; statusEl.className = 'pill ok'; };
+        es.onerror = () => { statusEl.textContent = 'reconnecting…'; statusEl.className = 'pill warn'; };
+        es.addEventListener('snapshot', (e) => {
+          try { applySnapshot(JSON.parse(e.data)); } catch {}
+        });
+        es.addEventListener('created', (e) => {
+          try { renderIncident(JSON.parse(e.data)); } catch {}
+        });
+        es.addEventListener('status', (e) => {
+          try {
+            const payload = JSON.parse(e.data);
+            const el = items.get(payload.id);
+            if (el) {
+              // crude refresh by reloading list from current DOM cache
+              // in a real app, we would track objects in memory
+              // skipped for brevity
+            }
+          } catch {}
+        });
+        es.addEventListener('assigned', (e) => {
+          try {
+            const p = JSON.parse(e.data);
+            const card = document.getElementById('inc-' + p.id);
+            if (card) card.querySelector('.muted')?.insertAdjacentHTML('beforeend', ` • Assigned: <code>${p.assignedUnit}</code>`);
+          } catch {}
+        });
+        fetch('/incidents/responders', { headers: authHeaders() }).then(r => r.json()).then(j => renderResponders(j.data || [])).catch(() => {});
+      }
+
+      function authHeaders(){
+        const tk = document.getElementById('token').value.trim();
+        return tk ? { 'Authorization': 'Bearer ' + tk } : {};
+      }
+
+      document.addEventListener('click', (e)=>{
+        const t = e.target;
+        if (t && t.classList.contains('assign')){
+          const id = t.getAttribute('data-id');
+          const input = document.getElementById('asg-' + id);
+          const assignedUnit = input && input.value.trim();
+          if (!assignedUnit) return;
+          fetch('/incidents/' + id + '/assign', { method:'PATCH', headers: { 'Content-Type':'application/json', ...authHeaders() }, body: JSON.stringify({ assignedUnit }) })
+            .then(r => r.json()).then(() => { statusEl.textContent='assigned'; statusEl.className='pill ok'; })
+            .catch(()=>{ statusEl.textContent='assign failed'; statusEl.className='pill bad'; });
+        }
+      });
+
+      document.getElementById('connect').addEventListener('click', connect);
+
+      // init map
+      setTimeout(() => {
+        try {
+          map = L.map('map').setView([20.5937, 78.9629], 5); // India center
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap'
+          }).addTo(map);
+        } catch {}
+      }, 0);
+    </script>
+  </body>
+  </html>
+
+
