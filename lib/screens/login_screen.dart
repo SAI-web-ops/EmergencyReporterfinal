@@ -42,25 +42,38 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _emailCtrl,
                     decoration: const InputDecoration(labelText: 'Email'),
                     keyboardType: TextInputType.emailAddress,
-                    validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
+                    validator: (v) =>
+                        (v == null || v.isEmpty) ? 'Required' : null,
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _passwordCtrl,
                     decoration: const InputDecoration(labelText: 'Password'),
                     obscureText: true,
-                    validator: (v) => (v == null || v.length < 6) ? 'Min 6 chars' : null,
+                    validator: (v) =>
+                        (v == null || v.length < 6) ? 'Min 6 chars' : null,
                   ),
                   if (_isSignup) ...[
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
-                      value: _role,
+                      initialValue: _role,
                       items: const [
-                        DropdownMenuItem(value: 'citizen', child: Text('Citizen')),
-                        DropdownMenuItem(value: 'dispatcher', child: Text('Dispatcher')),
-                        DropdownMenuItem(value: 'responder', child: Text('Responder')),
+                        DropdownMenuItem(
+                          value: 'citizen',
+                          child: Text('Citizen'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'dispatcher',
+                          child: Text('Dispatcher'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'responder',
+                          child: Text('Responder'),
+                        ),
                       ],
-                      onChanged: (v) => setState(() { _role = v ?? 'citizen'; }),
+                      onChanged: (v) => setState(() {
+                        _role = v ?? 'citizen';
+                      }),
                       decoration: const InputDecoration(labelText: 'Role'),
                     ),
                   ],
@@ -69,13 +82,30 @@ class _LoginScreenState extends State<LoginScreen> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: _loading ? null : _submit,
-                      child: _loading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : Text(_isSignup ? 'Sign up' : 'Sign in'),
+                      child: _loading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Text(_isSignup ? 'Sign up' : 'Sign in'),
                     ),
                   ),
                   TextButton(
-                    onPressed: _loading ? null : () => setState(() { _isSignup = !_isSignup; }),
-                    child: Text(_isSignup ? 'Have an account? Sign in' : 'Create an account'),
-                  )
+                    onPressed: _loading
+                        ? null
+                        : () => setState(() {
+                            _isSignup = !_isSignup;
+                          }),
+                    child: Text(
+                      _isSignup
+                          ? 'Have an account? Sign in'
+                          : 'Create an account',
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -87,7 +117,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    setState(() { _loading = true; });
+    setState(() {
+      _loading = true;
+    });
     try {
       final repo = context.read<AuthRepository>();
       final app = context.read<AppStateProvider>();
@@ -103,18 +135,23 @@ class _LoginScreenState extends State<LoginScreen> {
       final refresh = data['refreshToken'] as String;
       final user = data['user'] as Map<String, dynamic>;
       await repo.saveTokens(access, refresh);
-      app.setAuth(accessToken: access, refreshToken: refresh, role: user['role'] as String?);
-      if (mounted) Navigator.of(context).pop(true);
+      app.setAuth(
+        accessToken: access,
+        refreshToken: refresh,
+        role: user['role'] as String?,
+      );
+      if (mounted) Navigator.of(context).pop();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Auth failed: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Auth failed: $e')));
       }
     } finally {
-      if (mounted) setState(() { _loading = false; });
+      if (mounted)
+        setState(() {
+          _loading = false;
+        });
     }
   }
 }
-
-
