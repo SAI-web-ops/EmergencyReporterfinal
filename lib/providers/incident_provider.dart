@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/incident.dart';
 
 class IncidentProvider extends ChangeNotifier {
-  List<Incident> _incidents = [];
+  final List<Incident> _incidents = [];
   Incident? _currentIncident;
   bool _isRecording = false;
   bool _isUploading = false;
@@ -33,7 +33,9 @@ class IncidentProvider extends ChangeNotifier {
   }
 
   void updateIncidentStatus(String incidentId, IncidentStatus status) {
-    final index = _incidents.indexWhere((incident) => incident.id == incidentId);
+    final index = _incidents.indexWhere(
+      (incident) => incident.id == incidentId,
+    );
     if (index != -1) {
       _incidents[index] = _incidents[index].copyWith(status: status);
       notifyListeners();

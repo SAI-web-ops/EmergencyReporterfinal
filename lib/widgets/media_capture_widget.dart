@@ -7,24 +7,20 @@ import '../repositories/upload_repository.dart';
 class MediaCaptureWidget extends StatefulWidget {
   final ValueChanged<List<String>> onMediaCaptured;
 
-  const MediaCaptureWidget({
-    super.key,
-    required this.onMediaCaptured,
-  });
+  const MediaCaptureWidget({super.key, required this.onMediaCaptured});
 
   @override
   State<MediaCaptureWidget> createState() => _MediaCaptureWidgetState();
 }
 
 class _MediaCaptureWidgetState extends State<MediaCaptureWidget> {
-  List<String> _mediaUrls = [];
+  final List<String> _mediaUrls = [];
   bool _uploading = false;
   final ImagePicker _picker = ImagePicker();
 
   @override
   Widget build(BuildContext context) {
-    return Card
-(
+    return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -32,10 +28,7 @@ class _MediaCaptureWidgetState extends State<MediaCaptureWidget> {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.camera_alt,
-                  color: Colors.blue[600],
-                ),
+                Icon(Icons.camera_alt, color: Colors.blue[600]),
                 const SizedBox(width: 8),
                 Text(
                   'Capture Media Evidence',
@@ -44,11 +37,16 @@ class _MediaCaptureWidgetState extends State<MediaCaptureWidget> {
                   ),
                 ),
                 const Spacer(),
-                if (_uploading) const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+                if (_uploading)
+                  const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
               ],
             ),
             const SizedBox(height: 16),
-            
+
             // Media Grid
             if (_mediaUrls.isEmpty)
               Container(
@@ -73,10 +71,7 @@ class _MediaCaptureWidgetState extends State<MediaCaptureWidget> {
                       const SizedBox(height: 8),
                       Text(
                         'No media captured',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
                       ),
                     ],
                   ),
@@ -99,9 +94,9 @@ class _MediaCaptureWidgetState extends State<MediaCaptureWidget> {
                   return _buildMediaItem(_mediaUrls[index], index);
                 },
               ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Action Buttons
             Row(
               children: [
@@ -149,11 +144,7 @@ class _MediaCaptureWidgetState extends State<MediaCaptureWidget> {
           borderRadius: BorderRadius.circular(8),
         ),
         child: Center(
-          child: Icon(
-            Icons.add,
-            color: Colors.grey[600],
-            size: 24,
-          ),
+          child: Icon(Icons.add, color: Colors.grey[600], size: 24),
         ),
       ),
     );
@@ -165,10 +156,7 @@ class _MediaCaptureWidgetState extends State<MediaCaptureWidget> {
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            image: DecorationImage(
-              image: NetworkImage(url),
-              fit: BoxFit.cover,
-            ),
+            image: DecorationImage(image: NetworkImage(url), fit: BoxFit.cover),
           ),
         ),
         Positioned(
@@ -182,11 +170,7 @@ class _MediaCaptureWidgetState extends State<MediaCaptureWidget> {
                 color: Colors.red,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.close,
-                color: Colors.white,
-                size: 16,
-              ),
+              child: const Icon(Icons.close, color: Colors.white, size: 16),
             ),
           ),
         ),
@@ -231,13 +215,19 @@ class _MediaCaptureWidgetState extends State<MediaCaptureWidget> {
   }
 
   Future<void> _capturePhoto() async {
-    final picked = await _picker.pickImage(source: ImageSource.camera, imageQuality: 85);
+    final picked = await _picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 85,
+    );
     if (picked == null) return;
     await _uploadAndAdd(File(picked.path));
   }
 
   Future<void> _captureVideo() async {
-    final picked = await _picker.pickVideo(source: ImageSource.camera, maxDuration: const Duration(minutes: 5));
+    final picked = await _picker.pickVideo(
+      source: ImageSource.camera,
+      maxDuration: const Duration(minutes: 5),
+    );
     if (picked == null) return;
     await _uploadAndAdd(File(picked.path));
   }
@@ -252,7 +242,9 @@ class _MediaCaptureWidgetState extends State<MediaCaptureWidget> {
 
   Future<void> _uploadAndAdd(File file) async {
     try {
-      setState(() { _uploading = true; });
+      setState(() {
+        _uploading = true;
+      });
       final repo = context.read<UploadRepository>();
       final url = await repo.uploadFile(file);
       setState(() {
@@ -260,18 +252,21 @@ class _MediaCaptureWidgetState extends State<MediaCaptureWidget> {
       });
       widget.onMediaCaptured(_mediaUrls);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Media uploaded')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Media uploaded')));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Upload failed: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Upload failed: $e')));
       }
     } finally {
-      if (mounted) setState(() { _uploading = false; });
+      if (mounted)
+        setState(() {
+          _uploading = false;
+        });
     }
   }
 

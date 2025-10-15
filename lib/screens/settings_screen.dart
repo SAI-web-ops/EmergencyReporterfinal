@@ -4,7 +4,6 @@ import '../providers/app_state_provider.dart';
 import '../widgets/settings_tile.dart';
 import 'profile_screen.dart';
 import 'emergency_contacts_screen.dart';
-import 'package:provider/provider.dart';
 import '../repositories/notifications_repository.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -13,9 +12,7 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-      ),
+      appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -37,9 +34,13 @@ class SettingsScreen extends StatelessWidget {
                   subtitle: 'Manage notification preferences',
                   onTap: () => _showNotificationSettings(context),
                   trailing: Switch(
-                    value: context.watch<AppStateProvider>().isNotificationsEnabled,
+                    value: context
+                        .watch<AppStateProvider>()
+                        .isNotificationsEnabled,
                     onChanged: (value) {
-                      context.read<AppStateProvider>().setNotificationsEnabled(value);
+                      context.read<AppStateProvider>().setNotificationsEnabled(
+                        value,
+                      );
                     },
                   ),
                 ),
@@ -84,7 +85,9 @@ class SettingsScreen extends StatelessWidget {
                   trailing: Switch(
                     value: context.watch<AppStateProvider>().isLocationEnabled,
                     onChanged: (value) {
-                      context.read<AppStateProvider>().setLocationEnabled(value);
+                      context.read<AppStateProvider>().setLocationEnabled(
+                        value,
+                      );
                     },
                   ),
                 ),
@@ -192,9 +195,7 @@ class SettingsScreen extends StatelessWidget {
               onPressed: () => _showResetDialog(context),
               icon: const Icon(Icons.refresh),
               label: const Text('Reset App Data'),
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.red,
-              ),
+              style: TextButton.styleFrom(foregroundColor: Colors.red),
             ),
           ),
         ],
@@ -301,17 +302,29 @@ class SettingsScreen extends StatelessWidget {
           decoration: const InputDecoration(labelText: 'Device Token'),
         ),
         actions: [
-          TextButton(onPressed: ()=>Navigator.pop(context), child: const Text('Cancel')),
-          ElevatedButton(onPressed: ()=>Navigator.pop(context, ctrl.text.trim()), child: const Text('Register')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, ctrl.text.trim()),
+            child: const Text('Register'),
+          ),
         ],
       ),
     );
     if (token == null || token.isEmpty) return;
     try {
-      await context.read<NotificationsRepository>().registerDevice(token: token);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Device registered')));
+      await context.read<NotificationsRepository>().registerDevice(
+        token: token,
+      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Device registered')));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Registration failed: $e')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Registration failed: $e')));
     }
   }
 

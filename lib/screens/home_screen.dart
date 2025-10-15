@@ -49,30 +49,41 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<LocationProvider>().requestPermissionAndFetch();
       _loadIncidents();
-        _refreshPendingCount();
+      _refreshPendingCount();
     });
   }
 
   Future<void> _loadIncidents() async {
-    setState(() { _loadingIncidents = true; });
+    setState(() {
+      _loadingIncidents = true;
+    });
     try {
       final repo = context.read<IncidentRepository>();
       final list = await repo.listIncidents();
-      if (mounted) setState(() { _recent = list.take(5).toList(); });
+      if (mounted)
+        setState(() {
+          _recent = list.take(5).toList();
+        });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load incidents: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to load incidents: $e')));
       }
     } finally {
-      if (mounted) setState(() { _loadingIncidents = false; });
+      if (mounted)
+        setState(() {
+          _loadingIncidents = false;
+        });
     }
   }
 
   Future<void> _refreshPendingCount() async {
     final c = await OfflineQueueService.countPending();
-    if (mounted) setState(() { _pendingCount = c; });
+    if (mounted)
+      setState(() {
+        _pendingCount = c;
+      });
   }
 
   @override
@@ -98,7 +109,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 );
                 _loadIncidents();
               },
-              child: Text('Retry (${_pendingCount})', style: const TextStyle(color: Colors.amber)),
+              child: Text(
+                'Retry ($_pendingCount)',
+                style: const TextStyle(color: Colors.amber),
+              ),
             ),
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -203,7 +217,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           subtitle: 'Shake Phone',
                           icon: Icons.warning,
                           color: Colors.purple,
-                          onPressed: () => _navigateToScreen(context, const PanicButtonScreen()),
+                          onPressed: () => _navigateToScreen(
+                            context,
+                            const PanicButtonScreen(),
+                          ),
                         ),
                       ),
                     ),
@@ -233,7 +250,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           subtitle: 'Report accidents, crimes, emergencies',
                           icon: Icons.report_problem,
                           color: Colors.red,
-                          onTap: () => _navigateToScreen(context, const IncidentReportScreen()),
+                          onTap: () => _navigateToScreen(
+                            context,
+                            const IncidentReportScreen(),
+                          ),
                         ),
                       ),
                     ),
@@ -250,7 +270,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           subtitle: 'Quick dial emergency services',
                           icon: Icons.contacts,
                           color: Colors.blue,
-                          onTap: () => _navigateToScreen(context, const EmergencyContactsScreen()),
+                          onTap: () => _navigateToScreen(
+                            context,
+                            const EmergencyContactsScreen(),
+                          ),
                         ),
                       ),
                     ),
@@ -267,7 +290,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           subtitle: 'First aid and emergency procedures',
                           icon: Icons.school,
                           color: Colors.green,
-                          onTap: () => _navigateToScreen(context, const SafetyGuidanceScreen()),
+                          onTap: () => _navigateToScreen(
+                            context,
+                            const SafetyGuidanceScreen(),
+                          ),
                         ),
                       ),
                     ),
@@ -295,7 +321,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           return Transform.scale(
             scale: _pulseAnimation.value,
             child: FloatingActionButton.extended(
-              onPressed: () => _navigateToScreen(context, const IncidentReportScreen()),
+              onPressed: () =>
+                  _navigateToScreen(context, const IncidentReportScreen()),
               icon: const Icon(Icons.add),
               label: const Text('Report'),
               backgroundColor: Colors.red,
@@ -314,11 +341,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              Icon(
-                Icons.map,
-                size: 48,
-                color: Colors.green[400],
-              ),
+              Icon(Icons.map, size: 48, color: Colors.green[400]),
               const SizedBox(height: 8),
               Text(
                 'No recent incidents',
@@ -344,7 +367,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             title: Text(inc.title),
             subtitle: Text('${inc.typeDisplayName} • ${inc.address}'),
             trailing: Text(inc.statusDisplayName),
-            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ChatScreen(incidentId: inc.id))),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => ChatScreen(incidentId: inc.id)),
+            ),
           ),
         );
       }).toList(),
@@ -380,9 +406,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   void _navigateToScreen(BuildContext context, Widget screen) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => screen),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (context) => screen));
   }
 }

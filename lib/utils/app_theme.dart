@@ -24,11 +24,9 @@ class AppTheme {
         secondary: primaryBlue,
         tertiary: primaryGreen,
         surface: surfaceLight,
-        background: backgroundLight,
         onPrimary: textLight,
         onSecondary: textLight,
         onSurface: textPrimary,
-        onBackground: textPrimary,
         error: primaryRed,
       ),
       appBarTheme: const AppBarTheme(
@@ -60,20 +58,19 @@ class AppTheme {
       ),
       cardTheme: CardThemeData(
         elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(8),
       ),
       inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: primaryRed, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
       ),
       textTheme: const TextTheme(
         headlineLarge: TextStyle(
@@ -91,18 +88,9 @@ class AppTheme {
           fontWeight: FontWeight.w600,
           color: textPrimary,
         ),
-        bodyLarge: TextStyle(
-          fontSize: 16,
-          color: textPrimary,
-        ),
-        bodyMedium: TextStyle(
-          fontSize: 14,
-          color: textPrimary,
-        ),
-        bodySmall: TextStyle(
-          fontSize: 12,
-          color: textSecondary,
-        ),
+        bodyLarge: TextStyle(fontSize: 16, color: textPrimary),
+        bodyMedium: TextStyle(fontSize: 14, color: textPrimary),
+        bodySmall: TextStyle(fontSize: 12, color: textSecondary),
       ),
     );
   }
@@ -116,11 +104,9 @@ class AppTheme {
         secondary: primaryBlue,
         tertiary: primaryGreen,
         surface: surfaceDark,
-        background: backgroundDark,
         onPrimary: textLight,
         onSecondary: textLight,
         onSurface: textLight,
-        onBackground: textLight,
         error: primaryRed,
       ),
       appBarTheme: const AppBarTheme(
@@ -153,20 +139,19 @@ class AppTheme {
       cardTheme: CardThemeData(
         elevation: 4,
         color: surfaceDark,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(8),
       ),
       inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: primaryRed, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
       ),
       textTheme: const TextTheme(
         headlineLarge: TextStyle(
@@ -184,18 +169,9 @@ class AppTheme {
           fontWeight: FontWeight.w600,
           color: textLight,
         ),
-        bodyLarge: TextStyle(
-          fontSize: 16,
-          color: textLight,
-        ),
-        bodyMedium: TextStyle(
-          fontSize: 14,
-          color: textLight,
-        ),
-        bodySmall: TextStyle(
-          fontSize: 12,
-          color: textSecondary,
-        ),
+        bodyLarge: TextStyle(fontSize: 16, color: textLight),
+        bodyMedium: TextStyle(fontSize: 14, color: textLight),
+        bodySmall: TextStyle(fontSize: 12, color: textSecondary),
       ),
     );
   }

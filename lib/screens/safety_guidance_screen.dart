@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../utils/i18n.dart';
 
 class SafetyGuidanceScreen extends StatelessWidget {
   const SafetyGuidanceScreen({super.key});
@@ -78,7 +77,13 @@ class SafetyGuidanceScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSection(BuildContext context, String title, List<String> items, IconData icon, Color color) {
+  Widget _buildSection(
+    BuildContext context,
+    String title,
+    List<String> items,
+    IconData icon,
+    Color color,
+  ) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -99,24 +104,26 @@ class SafetyGuidanceScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            ...items.map((item) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 6,
-                    height: 6,
-                    margin: const EdgeInsets.only(top: 6, right: 12),
-                    decoration: BoxDecoration(
-                      color: color,
-                      shape: BoxShape.circle,
+            ...items.map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      margin: const EdgeInsets.only(top: 6, right: 12),
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                      ),
                     ),
-                  ),
-                  Expanded(child: Text(item)),
-                ],
+                    Expanded(child: Text(item)),
+                  ],
+                ),
               ),
-            )),
+            ),
           ],
         ),
       ),

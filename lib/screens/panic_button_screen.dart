@@ -21,7 +21,7 @@ class _PanicButtonScreenState extends State<PanicButtonScreen>
   late AnimationController _shakeController;
   late Animation<double> _pulseAnimation;
   late Animation<double> _shakeAnimation;
-  
+
   bool _isPanicActive = false;
   bool _isShakeEnabled = true;
   int _shakeCount = 0;
@@ -31,7 +31,7 @@ class _PanicButtonScreenState extends State<PanicButtonScreen>
   @override
   void initState() {
     super.initState();
-    
+
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
@@ -113,9 +113,9 @@ class _PanicButtonScreenState extends State<PanicButtonScreen>
                   const SizedBox(height: 16),
                   Text(
                     'Shake your phone rapidly or press the button below to trigger emergency response',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Colors.grey[700],
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyLarge?.copyWith(color: Colors.grey[700]),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
@@ -134,11 +134,16 @@ class _PanicButtonScreenState extends State<PanicButtonScreen>
                           height: 200,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: _isPanicActive ? Colors.red : Colors.red[600],
+                            color: _isPanicActive
+                                ? Colors.red
+                                : Colors.red[600],
                             boxShadow: [
                               BoxShadow(
-                                color: (_isPanicActive ? Colors.red : Colors.red[600])!
-                                    .withOpacity(0.5),
+                                color:
+                                    (_isPanicActive
+                                            ? Colors.red
+                                            : Colors.red[600])!
+                                        .withOpacity(0.5),
                                 blurRadius: 20,
                                 spreadRadius: 5,
                               ),
@@ -199,28 +204,28 @@ class _PanicButtonScreenState extends State<PanicButtonScreen>
                             children: [
                               Text(
                                 'Shake Detection',
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.bold),
                               ),
                               Text(
                                 _isShakeEnabled
                                     ? 'Shake your phone to trigger panic mode'
                                     : 'Shake detection is disabled',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Colors.grey[600],
-                                ),
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(color: Colors.grey[600]),
                               ),
                             ],
                           ),
                         ),
                         Switch(
                           value: _isShakeEnabled,
-                          onChanged: _isPanicActive ? null : (value) {
-                            setState(() {
-                              _isShakeEnabled = value;
-                            });
-                          },
+                          onChanged: _isPanicActive
+                              ? null
+                              : (value) {
+                                  setState(() {
+                                    _isShakeEnabled = value;
+                                  });
+                                },
                         ),
                       ],
                     ),
@@ -242,9 +247,24 @@ class _PanicButtonScreenState extends State<PanicButtonScreen>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _buildQuickContactButton('Police', '100', Icons.local_police, Colors.blue),
-                      _buildQuickContactButton('Ambulance', '108', Icons.medical_services, Colors.red),
-                      _buildQuickContactButton('Fire', '101', Icons.local_fire_department, Colors.orange),
+                      _buildQuickContactButton(
+                        'Police',
+                        '100',
+                        Icons.local_police,
+                        Colors.blue,
+                      ),
+                      _buildQuickContactButton(
+                        'Ambulance',
+                        '108',
+                        Icons.medical_services,
+                        Colors.red,
+                      ),
+                      _buildQuickContactButton(
+                        'Fire',
+                        '101',
+                        Icons.local_fire_department,
+                        Colors.orange,
+                      ),
                     ],
                   ),
                 ],
@@ -256,7 +276,12 @@ class _PanicButtonScreenState extends State<PanicButtonScreen>
     );
   }
 
-  Widget _buildQuickContactButton(String name, String number, IconData icon, Color color) {
+  Widget _buildQuickContactButton(
+    String name,
+    String number,
+    IconData icon,
+    Color color,
+  ) {
     return Column(
       children: [
         GestureDetector(
@@ -371,9 +396,9 @@ class _PanicButtonScreenState extends State<PanicButtonScreen>
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to notify: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to notify: $e')));
       }
     }
   }
@@ -415,7 +440,7 @@ class _PanicButtonScreenState extends State<PanicButtonScreen>
     final remaining = 30; // 30 seconds total
     final minutes = remaining ~/ 60;
     final seconds = remaining % 60;
-    return '${minutes}:${seconds.toString().padLeft(2, '0')}';
+    return '$minutes:${seconds.toString().padLeft(2, '0')}';
   }
 
   // Simulate shake detection (in real app, use accelerometer)
@@ -444,7 +469,9 @@ class _PanicButtonScreenState extends State<PanicButtonScreen>
     _shakeCount++;
     _shakeController.forward().then((_) => _shakeController.reverse());
     _shakeTimer?.cancel();
-    _shakeTimer = Timer(const Duration(seconds: 2), () { _shakeCount = 0; });
+    _shakeTimer = Timer(const Duration(seconds: 2), () {
+      _shakeCount = 0;
+    });
     if (_shakeCount >= 3) {
       _triggerPanic();
     }

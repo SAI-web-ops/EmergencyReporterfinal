@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:provider/provider.dart';
 import '../models/incident.dart';
 import '../repositories/incident_repository.dart';
 import '../repositories/points_repository.dart';
@@ -13,7 +12,9 @@ class OfflineQueueService {
   static Future<List<Incident>> loadPending() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getStringList(_pendingKey) ?? <String>[];
-    return raw.map((s) => Incident.fromJson(json.decode(s) as Map<String, dynamic>)).toList();
+    return raw
+        .map((s) => Incident.fromJson(json.decode(s) as Map<String, dynamic>))
+        .toList();
   }
 
   static Future<void> addPending(Incident incident) async {
@@ -71,5 +72,3 @@ class OfflineQueueService {
     return success;
   }
 }
-
-
